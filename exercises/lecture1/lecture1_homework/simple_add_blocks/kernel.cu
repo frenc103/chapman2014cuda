@@ -5,7 +5,7 @@
 __global__ void add(int *a, int *b, int *c)
 {
     /* finish this code to calculate c element-wise from a and b where each block calculates one element */
-	c[...] = a[...] + b[...];
+	c[blockIdx.x] = a[blockIdx.x] + b[blockIdx.x];
 }
 
 
@@ -22,7 +22,8 @@ int main()
 	/* allocate space for device copies of a, b, c */
 	
 	cudaMalloc( (void **) &d_a, size );
-	/* insert code here for d_b and d_c */
+	cudaMalloc( (void **) &d_b, size );
+	cudaMalloc( (void **) &d_c, size );
 
 	/* allocate space for host copies of a, b, c and setup input values */
 
@@ -40,16 +41,16 @@ int main()
 
 	/* copy inputs to device */
 	
-	cudaMemcpy( d_a, a, size, ... );
-	/* insert code to copy b to the device */
+	cudaMemcpy( d_a, a, size, cudaMemcpyHostToDevice );
+	cudaMemcpy( d_b, a, size, cudaMemcpyHostToDevice );
 
 	/* launch the kernel on the GPU */
 	/* finish this kernel launch with N blocks and 1 thread per block */
-	...
+	add<<<N,1>>>(d_a,d_b,d_c);
 
 	/* copy result back to host */
 
-	cudaMemcpy( c, d_c, size, ... );
+	cudaMemcpy( c, d_c, size, cudaMemcpyDeviceToHost );
 
 	for( int i = 0; i < N; i++ )
 	{
