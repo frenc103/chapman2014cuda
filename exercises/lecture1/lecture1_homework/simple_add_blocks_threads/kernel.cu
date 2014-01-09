@@ -5,7 +5,7 @@
 __global__ void add(int *a, int *b, int *c)
 {
     /* insert code to calculate the index properly using blockIdx.x, blockDim.x, threadIdx.x */
-	int index = ...;
+	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	c[index] = a[index] + b[index];
 }
 
@@ -39,16 +39,16 @@ int main()
 	}
 
 	/* copy inputs to device */
-	cudaMemcpy( d_a, a, size, ... );
-	cudaMemcpy( d_b, b, size, ... );
+	cudaMemcpy( d_a, a, size, cudaMemcpyHostToDevice );
+	cudaMemcpy( d_b, b, size, cudaMemcpyHostToDevice );
 
 	/* launch the kernel on the GPU */
 	/* insert the launch parameters to launch the kernel properly using blocks and threads */ 
-	...
+	add<<<N/THREADS_PER_BLOCK,THREADS_PER_BLOCK>>>(d_a,d_b,d_c);
 
 	/* copy result back to host */
 
-	cudaMemcpy( c, d_c, size, ... );
+	cudaMemcpy( c, d_c, size, cudaMemcpyDeviceToHost );
 
 
 	printf( "c[0] = %d\n",0,c[0] );
@@ -62,7 +62,8 @@ int main()
 	cudaFree( d_a );
 
 	/* additional clean up*/
-	...
+	cudaFree( d_b );
+	cudaFree( d_c );
 	
 	return 0;
 } /* end main */
